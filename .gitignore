@@ -102,3 +102,15 @@ ENV/
 
 # Friggin Apple
 .DS_Store
+
+# Generated Ankdown decks and media/build artifacts
+*.apkg
+*.aux
+*.dvi
+ankdown_media/
+simple_tikz.pdf
+tikz_test.pdf
+tests/inspect_*/
+tests/*.apkg
+tests/**/collection.anki2
+tests/**/deck.zip
