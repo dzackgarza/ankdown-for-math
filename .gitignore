@@ -108,8 +108,11 @@ ENV/
 *.aux
 *.dvi
 ankdown_media/
+ankdown/tikz-cd.js
 simple_tikz.pdf
 tikz_test.pdf
+tests/simple_tikz.*
+tests/tikz_test.*
 tests/inspect_*/
 tests/*.apkg
 tests/**/collection.anki2

@@ -37,10 +37,13 @@ setup(
     ],
     keywords="anki spaced-repetition markdown math latex",
     packages=find_packages(),
-    install_requires=['genanki>=0.4.0', 'misaka>=2.1.0', 'docopt>=0.6.2'],
+    package_data={
+        "ankdown": ["ankdown.lua", "card.css", "mathjax.html"],
+    },
+    install_requires=['genanki>=0.13.1', 'cyclopts>=4.0.0', 'pydantic>=2.0.0'],
     entry_points={
         "console_scripts": [
-            "ankdown=ankdown.ankdown:main"
+            "ankdown=ankdown.cli:app"
         ]
     }
 )
