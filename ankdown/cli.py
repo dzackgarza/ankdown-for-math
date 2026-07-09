@@ -77,17 +77,12 @@ class AnkdownModel(genanki.Model):
             css=css
         )
 
-@app.command
-def compile(output: str = "output.apkg"):
-    """
-    Compile cards from JSON stdin into an .apkg file.
-    """
+def _compile_json(raw_input: str, output: str):
+    """Build an .apkg from ankdown JSON (the lua filter's output)."""
     try:
-        raw_input = sys.stdin.read()
-        if not raw_input:
-            print("Error: No input received on stdin", file=sys.stderr)
+        if not raw_input.strip():
+            print("Error: No input received", file=sys.stderr)
             sys.exit(1)
-            
         data = json.loads(raw_input)
         deck_input = DeckInput(**data)
     except Exception as e:
@@ -155,6 +150,50 @@ def compile(output: str = "output.apkg"):
         package.media_files = media_files
         package.write_to_file(output)
         print(f"Successfully created {output} with {len(deck_input.cards)} cards and {len(media_files)} media files.")
+
+@app.command
+def compile(output: str = "output.apkg"):
+    """Compile ankdown JSON from stdin into an .apkg file."""
+    _compile_json(sys.stdin.read(), output)
+
+
+@app.command
+def build(input: str, output: str = "output.apkg", output_dir: Optional[str] = None):
+    """Build .apkg(s) straight from Markdown deck file(s), using the bundled lua filter.
+
+    INPUT is a single .md file (-> --output) or a directory built recursively
+    (-> --output-dir, one .apkg per deck). Requires pandoc on PATH.
+    """
+    import subprocess
+    import glob
+
+    lua = os.path.join(os.path.dirname(__file__), "ankdown.lua")
+
+    def run(md_path, out_path):
+        proc = subprocess.run(
+            ["pandoc", "--lua-filter", lua, md_path, "-t", "plain"],
+            capture_output=True, text=True,
+        )
+        if proc.returncode != 0:
+            print(f"pandoc failed for {md_path}:\n{proc.stderr}", file=sys.stderr)
+            sys.exit(1)
+        _compile_json(proc.stdout, out_path)
+
+    if os.path.isdir(input):
+        if not output_dir:
+            print("Error: --output-dir is required when INPUT is a directory", file=sys.stderr)
+            sys.exit(1)
+        os.makedirs(output_dir, exist_ok=True)
+        mds = sorted(glob.glob(os.path.join(input, "**", "*.md"), recursive=True))
+        if not mds:
+            print(f"Error: no .md files found under {input}", file=sys.stderr)
+            sys.exit(1)
+        for md in mds:
+            name = os.path.relpath(md, input)[:-3].replace(os.sep, "__")
+            run(md, os.path.join(output_dir, name + ".apkg"))
+    else:
+        run(input, output)
+
 
 if __name__ == "__main__":
     app()

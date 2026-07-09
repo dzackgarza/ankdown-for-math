@@ -95,3 +95,16 @@ def test_apkg_content_fidelity():
     assert "\\[\\iint_\\Sigma (\\nabla \\times \\mathbf{F}) \\cdot d\\mathbf{a}" in notes[1][1]
     
     print(f"\nTest APKG preserved at: {os.path.abspath(apkg_target)}")
+
+
+def test_build_command(tmp_path):
+    """`ankdown build FILE` runs pandoc + the bundled lua filter and emits an .apkg."""
+    out = str(tmp_path / "built.apkg")
+    r = subprocess.run(
+        ["python3", "ankdown/cli.py", "build",
+         "tests/fixtures/complex_physics.md", "--output", out],
+        capture_output=True, text=True,
+    )
+    assert r.returncode == 0, r.stderr
+    assert os.path.exists(out)
+    assert len(inspect_apkg(out)) == 3
