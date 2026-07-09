@@ -44,14 +44,11 @@ class AnkdownModel(genanki.Model):
         model_id = simple_hash(model_name)
         base_dir = os.path.dirname(__file__)
         
-        # Load MathJax from external file
-        try:
-            mathjax_path = os.path.join(base_dir, "mathjax.html")
-            with open(mathjax_path, "r") as f:
-                mathjax_content = f.read()
-        except Exception as e:
-            print(f"Warning: Could not load mathjax.html: {e}", file=sys.stderr)
-            mathjax_content = ""
+        # Load MathJax 3 config template. Macros themselves are bundled separately as the
+        # media file _ankdown_macros.js (see compile()); this template loads them.
+        mathjax_path = os.path.join(base_dir, "mathjax.html")
+        with open(mathjax_path, "r") as f:
+            mathjax_content = f.read()
 
         # Load CSS from external file
         try:
@@ -126,6 +123,16 @@ def compile(output: str = "output.apkg"):
     
     media_files = []
     with tempfile.TemporaryDirectory() as tmpdir:
+        # Bundle the generated MathJax macros as a protected media file. It carries "{{"
+        # in macro bodies, so it must be an external file, not inline in the card template.
+        base_dir = os.path.dirname(__file__)
+        with open(os.path.join(base_dir, "mathjax-macros.json")) as f:
+            macros_json = f.read().strip()
+        macros_js_path = os.path.join(tmpdir, "_ankdown_macros.js")
+        with open(macros_js_path, "w") as f:
+            f.write("window.ANKDOWN_MACROS = " + macros_json + ";")
+        media_files.append(macros_js_path)
+
         for m in set(deck_input.media):
             if ":" in m:
                 abs_path, mangled_name = m.split(":", 1)

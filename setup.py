@@ -38,7 +38,7 @@ setup(
     keywords="anki spaced-repetition markdown math latex",
     packages=find_packages(),
     package_data={
-        "ankdown": ["ankdown.lua", "card.css", "mathjax.html"],
+        "ankdown": ["ankdown.lua", "card.css", "mathjax.html", "mathjax-macros.json"],
     },
     install_requires=['genanki>=0.13.1', 'cyclopts>=4.0.0', 'pydantic>=2.0.0'],
     entry_points={

@@ -102,30 +102,53 @@ local media_filter = {
     end
 }
 
+-- If plain text is a per-card tag line ("tags: a, b, c"), return {a,b,c}, else nil.
+function parse_card_tags(plain)
+    local rest = plain:match('^%s*[Tt][Aa][Gg][Ss]:%s*(.+)$')
+    if not rest then return nil end
+    local out = {}
+    for tag in rest:gmatch('[^,]+') do
+        tag = tag:gsub('^%s*(.-)%s*$', '%1')
+        if tag ~= '' then table.insert(out, tag) end
+    end
+    return out
+end
+
 function process_list(list)
     for _, item_blocks in ipairs(list.content) do
         -- Apply filters (Math and Images)
         local processed_blocks = pandoc.walk_block(pandoc.Div(item_blocks), media_filter).content
-        
+
         if #processed_blocks >= 1 then
             local front = blocks_to_html({processed_blocks[1]})
             local back_parts = {}
-            
+            local card_tags = {}
+
             for i = 2, #processed_blocks do
                 local block = processed_blocks[i]
                 if block.t == 'BulletList' or block.t == 'OrderedList' then
                     for _, subitem in ipairs(block.content) do
-                        table.insert(back_parts, blocks_to_html(subitem))
+                        local tags = parse_card_tags(pandoc.utils.stringify(pandoc.Div(subitem)))
+                        if tags then
+                            for _, tg in ipairs(tags) do table.insert(card_tags, tg) end
+                        else
+                            table.insert(back_parts, blocks_to_html(subitem))
+                        end
                     end
                 else
-                    table.insert(back_parts, blocks_to_html({block}))
+                    local tags = parse_card_tags(pandoc.utils.stringify(block))
+                    if tags then
+                        for _, tg in ipairs(tags) do table.insert(card_tags, tg) end
+                    else
+                        table.insert(back_parts, blocks_to_html({block}))
+                    end
                 end
             end
-            
+
             table.insert(cards, {
                 front = front,
                 back = table.concat(back_parts, "<br>"),
-                tags = deck_meta.tags
+                tags = card_tags
             })
         end
     end

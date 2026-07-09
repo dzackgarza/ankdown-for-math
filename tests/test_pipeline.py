@@ -18,6 +18,20 @@ def test_pydantic_validation():
     assert deck.meta.title == "Test"
     assert len(deck.cards) == 1
 
+def test_per_card_tags():
+    """A per-card 'tags:' line is extracted into that card's tags and removed from the back."""
+    cmd = ["pandoc", "--lua-filter", "ankdown/ankdown.lua",
+           "tests/fixtures/per_card_tags.md", "-t", "plain"]
+    result = subprocess.run(cmd, capture_output=True, text=True)
+    assert result.returncode == 0
+    cards = json.loads(result.stdout)["cards"]
+    tagged = next(c for c in cards if "Simple group" in c["front"])
+    assert tagged.get("tags") == ["definition", "important"]
+    assert "tags:" not in tagged["back"]  # marker line stripped from the answer
+    untagged = next(c for c in cards if "Untagged card" in c["front"])
+    assert not untagged.get("tags")       # cards without the marker get no card-level tags
+
+
 def inspect_apkg(apkg_path):
     """Extract and return notes from an .apkg file."""
     with tempfile.TemporaryDirectory() as tmpdir:
