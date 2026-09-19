@@ -237,7 +237,6 @@
   "ab": "{\\operatorname{ab}}",
   "ad": "{ \\operatorname{ad}}",
   "Ad": "{ \\operatorname{Ad} }",
-  "adj": "\\operatorname{adj}",
   "adjoint": "\\dagger",
   "ae": "{ \\text{a.e.} }",
   "afp": "A_{/\\FF_p}",
@@ -649,14 +648,14 @@
   "Hc": "{\\check{H}}",
   "hocolim": "\\operatorname{hocolim}",
   "HZ": "{H\\ZZ}",
-  "I": "{\\textrm{I}}",
-  "II": "{\\textrm{II}}",
-  "III": "{\\textrm{III}}",
+  "I": "\\mathrm{I}",
+  "II": "\\mathrm{II}",
+  "III": "\\mathrm{III}",
   "intcl": "\\operatorname{cl}^{\\mathrm{int}}",
   "algcl": "\\operatorname{cl}^{\\mathrm{alg}}",
   "sepcl": "\\operatorname{cl}^{\\mathrm{sep}}",
   "iso": "\\isomorphic",
-  "IV": "{\\rm{IV}}",
+  "IV": "\\mathrm{IV}",
   "K": "{\\mathsf{K}}",
   "kbar": "{ \\overline{k} }",
   "kfq": "K_{/\\FF_q}",
@@ -740,7 +739,7 @@
   "dash": "{\\hbox{-}}",
   "decreasesto": "\\searrow",
   "disjoint": "{\\amalg}",
-  "Disjoint": "\\coprod",
+  "Disjoint": "\\bigsqcup",
   "divergence": "{ \\nabla\\cdot }",
   "divides": "\\mathrel{|}",
   "dV": "\\,dV",
@@ -804,7 +803,7 @@
   "projectivelim": "\\varprojlim",
   "projresolve": "\\rightrightarrows",
   "proportional": "\\propto",
-  "qed": "\\hfill\\blacksquare",
+  "qed": "\\hfill\\ensuremath{\\blacksquare}",
   "rational": "\\torational",
   "rationalmap": "\\dashrightarrow",
   "semidirect": "\\rtimes",
@@ -1004,7 +1003,8 @@
   "Nod": "{\\mathrm{Nod}}",
   "latI": "\\mathrm{I}",
   "latII": "\\mathrm{II}",
-  "lEn": "{\\mathrm{II}}_{1, 9}",
+  "lEn": "L_{\\mathrm{En}}",
+  "lEnII": "{\\mathrm{II}}_{1, 9}",
   "lias": "L_{\\mathrm{IAS}}",
   "liasplus": "\\lias^+",
   "liasminus": "\\lias^-",
@@ -1113,6 +1113,42 @@
   "dright": "{}_{\\rm right}",
   "evn": "\\text{even }n",
   "odn": "\\text{odd }n",
+  "BB": "\\operatorname{BB}",
+  "ConvOp": "\\operatorname{Conv}",
+  "perfOp": "\\operatorname{perf}",
+  "GIT": "\\operatorname{GIT}",
+  "isoGr": "\\operatorname{IsoGr}",
+  "FG": "F_\\Gamma",
+  "IA": "\\mathrm{IA}",
+  "IAD": "\\mathrm{IAD}",
+  "IARP": "\\mathrm{IARP}",
+  "OStab": "\\Orth^*",
+  "ZZtwoadic": "\\ZZ_{\\hat 2}",
+  "cox": "\\Cox",
+  "genop": "\\mathrm{gen}",
+  "irrelevant": "\\mathrm{irr}",
+  "relevant": "\\mathrm{rel}",
+  "rcop": "\\mathrm{rc}",
+  "opop": "\\mathrm{op}",
+  "opp": "^{\\mathrm{op}}",
+  "liek": "\\mathfrak{k}",
+  "liev": "\\mathfrak{v}",
+  "tiling": "\\mathcal{T}",
+  "weylgroup": "\\mathcal{W}",
+  "mcH": "\\mathcal{H}",
+  "diverge": "\\uparrow",
+  "uksba": "^{\\mathrm{KSBA}}",
+  "uktriv": "^{K\\text{-}\\mathrm{triv}}",
+  "textand": "\\text{ and }",
+  "textelse": "\\text{ otherwise }",
+  "textfor": "\\text{ for }",
+  "textif": "\\text{ if }",
+  "textor": "\\text{ or }",
+  "where": "\\text{ where }",
+  "Poincare": "Poincar\\'e",
+  "Bbb": "\\mathbb",
+  "HalphenInvariants": "(10, 10, 1)",
+  "EnriquesInvariants": "(10, 10, 0)",
   "abs": [
     "{\\left\\lvert {#1} \\right\\rvert}",
     1
@@ -1187,6 +1223,14 @@
   ],
   "complex": [
     "{ {#1}_{\\scriptscriptstyle \\bullet}}",
+    1
+  ],
+  "decfiltration": [
+    "{#1}_{\\bullet}",
+    1
+  ],
+  "incfiltration": [
+    "{#1}^{\\bullet}",
     1
   ],
   "conj": [
@@ -1382,32 +1426,32 @@
     1
   ],
   "disjointpower": [
-    "{ {}^{ \\scriptscriptstyle\\coprod^{#1} }  }",
-    1
+    "{#1}^{\\scriptscriptstyle\\coprod^{#2}}",
+    2
   ],
   "derivedtensorpower": [
     "{ {}^{ \\scriptstyle {}_{#1} {\\otimes_{#2}^{#3}} }  }",
     3
   ],
   "fiberpower": [
-    "{ {}^{ \\scriptscriptstyle\\fiberprod{#1}^{#2} }  }",
-    2
+    "{#1}^{\\scriptscriptstyle\\fiberproduct{#2}^{#3}}",
+    3
   ],
   "powers": [
     "{ {}^{\\cdot #1} }",
     1
   ],
   "prodpower": [
-    "{ {}^{ \\scriptscriptstyle\\times^{#1} }  }",
-    1
+    "{#1}^{\\scriptscriptstyle\\times^{#2}}",
+    2
   ],
   "skel": [
     "{ {}^{ (#1) } }",
     1
   ],
   "smashpower": [
-    "{ {}^{ \\scriptscriptstyle\\smashprod^{#1} }  }",
-    1
+    "{#1}^{\\scriptscriptstyle\\smashprod^{#2}}",
+    2
   ],
   "sumpower": [
     "{ {}^{ \\oplus{#1} }  }",
@@ -1418,16 +1462,16 @@
     2
   ],
   "tensorpowerk": [
-    "{ {}^{ \\scriptscriptstyle\\otimes_{k}^{#1} }  }",
-    1
+    "{#1}^{\\scriptscriptstyle\\otimes_{k}^{#2}}",
+    2
   ],
   "transp": [
     "{ \\, {}^{t}{ \\left( #1 \\right) } }",
     1
   ],
   "wedgepower": [
-    "{ {}^{ \\scriptscriptstyle\\smashprod^{#1} }  }",
-    1
+    "{#1}^{\\scriptscriptstyle\\smashprod^{#2}}",
+    2
   ],
   "twistleft": [
     "{ {}^{#1} #2 }",
@@ -1750,16 +1794,16 @@
     1
   ],
   "fiberprod": [
-    "\\fiberproduct{#1}",
-    1
+    "{#1} \\fiberproduct{#2} {#3}",
+    3
   ],
   "basechange": [
     "{ \\fiberproduct{k} {#1} }",
     1
   ],
   "fprod": [
-    "{ \\fiberproduct{#1} }",
-    1
+    "\\fiberprod{#1}{#2}{#3}",
+    3
   ],
   "qsymb": [
     "{ \\left( {#1} \\over {#2} \\right)  }",
@@ -1770,7 +1814,7 @@
     1
   ],
   "lktt": [
-    "{L_{\\mathrm{K3}, \\1}}",
+    "{L_{\\mathrm{K3}, #1}}",
     1
   ],
   "fractional": [
@@ -1878,6 +1922,26 @@
   ],
   "orthcomp": [
     "#1^{\\perp #2}",
+    2
+  ],
+  "thecone": [
+    "\\mathfrak{#1}",
+    1
+  ],
+  "theposet": [
+    "\\mathcal{#1}",
+    1
+  ],
+  "modulistack": [
+    "\\mathcal{#1}",
+    1
+  ],
+  "RN": [
+    "\\textup{\\uppercase\\expandafter{\\romannumeral#1}}",
+    1
+  ],
+  "torcptf": [
+    "\\overline{#1}^{#2}",
     2
   ],
   "Sets": "{\\mathsf{Set}}",
@@ -2182,10 +2246,7 @@
     "{ \\underset{(\\infty, {#1})}{ \\Cat}  }",
     1
   ],
-  "GSpaces": [
-    "{G\\dash\\mathsf{Spaces}}",
-    1
-  ],
+  "GSpaces": "{G\\dash\\mathsf{Spaces}}",
   "gspaces": [
     "{#1}\\dash{\\mathsf{Spaces}}",
     1
@@ -2201,6 +2262,10 @@
   "Torsorright": [
     "{\\mathsf{Torsor}\\dash\\mathsf{#1}}",
     1
+  ],
+  "adj": [
+    "#1 \\mathrel{\\underset{#4}{\\overset{#3}{\\rightleftarrows}}} #2",
+    4
   ],
   "tmf": "\\mathrm{tmf}",
   "taf": "\\mathrm{taf}",
