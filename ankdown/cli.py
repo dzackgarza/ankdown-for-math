@@ -10,6 +10,18 @@ import cyclopts
 app = cyclopts.App()
 
 import os
+import urllib.request
+
+# The generated MathJax macros on pandoc-config main, the source of truth for the
+# macro set. Each build reads the current set.
+MACROS_URL = "https://raw.githubusercontent.com/dzackgarza/pandoc-config/main/templates/css/mathjax-macros.json"
+
+
+def fetch_macros() -> str:
+    """The JSON macro set from pandoc-config main."""
+    with urllib.request.urlopen(MACROS_URL, timeout=30) as response:
+        return response.read().decode("utf-8").strip()
+
 
 class Card(BaseModel):
     front: str
@@ -120,9 +132,7 @@ def _compile_json(raw_input: str, output: str):
     with tempfile.TemporaryDirectory() as tmpdir:
         # Bundle the generated MathJax macros as a protected media file. It carries "{{"
         # in macro bodies, so it must be an external file, not inline in the card template.
-        base_dir = os.path.dirname(__file__)
-        with open(os.path.join(base_dir, "mathjax-macros.json")) as f:
-            macros_json = f.read().strip()
+        macros_json = fetch_macros()
         macros_js_path = os.path.join(tmpdir, "_ankdown_macros.js")
         with open(macros_js_path, "w") as f:
             f.write("window.ANKDOWN_MACROS = " + macros_json + ";")

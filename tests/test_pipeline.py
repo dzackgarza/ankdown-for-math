@@ -5,7 +5,7 @@ import pytest
 import zipfile
 import sqlite3
 import tempfile
-from ankdown.cli import DeckInput
+from ankdown.cli import DeckInput, fetch_macros
 
 def test_pydantic_validation():
     # Valid data
@@ -108,3 +108,19 @@ def test_build_command(tmp_path):
     assert r.returncode == 0, r.stderr
     assert os.path.exists(out)
     assert len(inspect_apkg(out)) == 3
+
+
+def test_package_carries_pandoc_config_macros(tmp_path):
+    """The package bundles the macro set from pandoc-config main."""
+    out = str(tmp_path / "built.apkg")
+    subprocess.run(
+        ["python3", "ankdown/cli.py", "build",
+         "tests/fixtures/complex_physics.md", "--output", out],
+        check=True,
+    )
+    with zipfile.ZipFile(out) as archive:
+        names = {name: key for key, name in json.loads(archive.read("media")).items()}
+        script = archive.read(names["_ankdown_macros.js"]).decode("utf-8")
+    macros = json.loads(script.removeprefix("window.ANKDOWN_MACROS = ").removesuffix(";"))
+    assert macros == json.loads(fetch_macros())
+    assert macros["colim"] == "\\operatorname*{colim}"
