@@ -11,15 +11,26 @@ app = cyclopts.App()
 import os
 import urllib.request
 
-# The generated MathJax macros on pandoc-config main, the source of truth for the
-# macro set. Each build reads the current set.
-MACROS_URL = "https://raw.githubusercontent.com/dzackgarza/pandoc-config/main/templates/css/mathjax-macros.json"
+# pandoc-config main is the source of truth for the macro set and for the
+# MathJax 4 TeX package "stmaryrd" that the macros use. Each build reads both.
+PANDOC_CONFIG_URL = "https://raw.githubusercontent.com/dzackgarza/pandoc-config/main/templates"
+MACROS_URL = PANDOC_CONFIG_URL + "/css/mathjax-macros.json"
+STMARYRD_URL = PANDOC_CONFIG_URL + "/js/mathjax-stmaryrd.js"
+
+
+def fetch(url: str) -> str:
+    with urllib.request.urlopen(url, timeout=30) as response:
+        return response.read().decode("utf-8").strip()
 
 
 def fetch_macros() -> str:
     """The JSON macro set from pandoc-config main."""
-    with urllib.request.urlopen(MACROS_URL, timeout=30) as response:
-        return response.read().decode("utf-8").strip()
+    return fetch(MACROS_URL)
+
+
+def fetch_stmaryrd() -> str:
+    """The script that defines registerStmaryrd, from pandoc-config main."""
+    return fetch(STMARYRD_URL)
 
 
 class Card(BaseModel):
@@ -55,8 +66,9 @@ class AnkdownModel(genanki.Model):
         model_id = simple_hash(model_name)
         base_dir = os.path.dirname(__file__)
         
-        # Load MathJax 3 config template. Macros themselves are bundled separately as the
-        # media file _ankdown_macros.js (see compile()); this template loads them.
+        # Load MathJax 4 config template. The macros and the stmaryrd package are bundled
+        # separately as the media file _ankdown_macros.js (see compile()); this template
+        # loads them.
         mathjax_path = os.path.join(base_dir, "mathjax.html")
         with open(mathjax_path, "r") as f:
             mathjax_content = f.read()
@@ -129,12 +141,12 @@ def _compile_json(raw_input: str, output: str):
     
     media_files = []
     with tempfile.TemporaryDirectory() as tmpdir:
-        # Bundle the generated MathJax macros as a protected media file. It carries "{{"
-        # in macro bodies, so it must be an external file, not inline in the card template.
-        macros_json = fetch_macros()
+        # Bundle the generated MathJax macros and the stmaryrd package as a protected
+        # media file. It carries "{{" in macro bodies, so it must be an external file,
+        # not inline in the card template.
         macros_js_path = os.path.join(tmpdir, "_ankdown_macros.js")
         with open(macros_js_path, "w") as f:
-            f.write("window.ANKDOWN_MACROS = " + macros_json + ";")
+            f.write(fetch_stmaryrd() + "\nwindow.ANKDOWN_MACROS = " + fetch_macros() + ";")
         media_files.append(macros_js_path)
 
         for m in set(deck_input.media):

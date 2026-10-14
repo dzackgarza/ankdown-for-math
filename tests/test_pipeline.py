@@ -6,7 +6,7 @@ import pytest
 import zipfile
 import sqlite3
 import tempfile
-from ankdown.cli import DeckInput, fetch_macros
+from ankdown.cli import DeckInput, fetch_macros, fetch_stmaryrd
 
 def test_pydantic_validation():
     # Valid data
@@ -112,7 +112,7 @@ def test_build_command(tmp_path):
 
 
 def test_package_carries_pandoc_config_macros(tmp_path):
-    """The package bundles the macro set from pandoc-config main."""
+    """The package bundles the macro set and the stmaryrd package from pandoc-config main."""
     out = str(tmp_path / "built.apkg")
     subprocess.run(
         [sys.executable, "ankdown/cli.py", "build",
@@ -122,6 +122,9 @@ def test_package_carries_pandoc_config_macros(tmp_path):
     with zipfile.ZipFile(out) as archive:
         names = {name: key for key, name in json.loads(archive.read("media")).items()}
         script = archive.read(names["_ankdown_macros.js"]).decode("utf-8")
-    macros = json.loads(script.removeprefix("window.ANKDOWN_MACROS = ").removesuffix(";"))
+    package, assignment = script.split("\nwindow.ANKDOWN_MACROS = ")
+    assert package == fetch_stmaryrd()
+    assert "globalThis.registerStmaryrd" in package
+    macros = json.loads(assignment.removesuffix(";"))
     assert macros == json.loads(fetch_macros())
     assert macros["colim"] == "\\operatorname*{colim}"
