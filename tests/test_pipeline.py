@@ -1,4 +1,5 @@
 import json
+import sys
 import subprocess
 import os
 import pytest
@@ -72,7 +73,7 @@ def test_apkg_content_fidelity():
     
     # Run pipeline
     pandoc_cmd = ["pandoc", "--lua-filter", "ankdown/ankdown.lua", fixture_path, "-t", "plain"]
-    cli_cmd = ["python3", "ankdown/cli.py", "compile", "--output", apkg_target]
+    cli_cmd = [sys.executable, "ankdown/cli.py", "compile", "--output", apkg_target]
     
     p1 = subprocess.Popen(pandoc_cmd, stdout=subprocess.PIPE)
     p2 = subprocess.run(cli_cmd, stdin=p1.stdout, capture_output=True, text=True)
@@ -101,7 +102,7 @@ def test_build_command(tmp_path):
     """`ankdown build FILE` runs pandoc + the bundled lua filter and emits an .apkg."""
     out = str(tmp_path / "built.apkg")
     r = subprocess.run(
-        ["python3", "ankdown/cli.py", "build",
+        [sys.executable, "ankdown/cli.py", "build",
          "tests/fixtures/complex_physics.md", "--output", out],
         capture_output=True, text=True,
     )
@@ -114,7 +115,7 @@ def test_package_carries_pandoc_config_macros(tmp_path):
     """The package bundles the macro set from pandoc-config main."""
     out = str(tmp_path / "built.apkg")
     subprocess.run(
-        ["python3", "ankdown/cli.py", "build",
+        [sys.executable, "ankdown/cli.py", "build",
          "tests/fixtures/complex_physics.md", "--output", out],
         check=True,
     )
