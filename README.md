@@ -34,6 +34,13 @@ Run the following command to generate your deck:
 pandoc --lua-filter ankdown/ankdown.lua my_cards.md -t plain | ankdown compile --output my_deck.apkg
 ```
 
+`compile` and `build` accept `--renderer-assets PATH` to use a prepared JSON
+file with `macros` and `stmaryrd` fields. This keeps package rendering inputs
+equal to an editor's installed inputs and allows compilation without network
+access. A missing or invalid file stops the command. With this option omitted,
+the command reads current renderer inputs from pandoc-config before compiling.
+Every deck in a directory build uses the same loaded pair.
+
 ## Installing
 
 1. Clone the repository.
