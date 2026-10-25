@@ -128,3 +128,31 @@ def test_package_carries_pandoc_config_macros(tmp_path):
     macros = json.loads(assignment.removesuffix(";"))
     assert macros == json.loads(fetch_macros())
     assert macros["colim"] == "\\operatorname*{colim}"
+
+
+def test_compile_with_prepared_renderer_assets_without_network(tmp_path):
+    """Compile with the exact prepared macro pair and retain output on invalid assets."""
+    prepared = {"macros": json.loads(fetch_macros()), "stmaryrd": fetch_stmaryrd()}
+    assets = tmp_path / "renderer.json"
+    assets.write_text(json.dumps(prepared))
+    rendered = subprocess.run(
+        ["pandoc", "--lua-filter", "ankdown/ankdown.lua", "tests/fixtures/complex_physics.md", "-t", "plain"],
+        text=True, capture_output=True, check=True,
+    ).stdout
+    output = tmp_path / "offline.apkg"
+    command = ["unshare", "--user", "--map-root-user", "--net", sys.executable,
+               "ankdown/cli.py", "compile", "--output", str(output), "--renderer-assets", str(assets)]
+    compiled = subprocess.run(command, input=rendered, text=True, capture_output=True)
+    assert compiled.returncode == 0, compiled.stderr
+    with zipfile.ZipFile(output) as archive:
+        media = {name: key for key, name in json.loads(archive.read("media")).items()}
+        script = archive.read(media["_ankdown_macros.js"]).decode()
+    stmaryrd, assignment = script.split("\nwindow.ANKDOWN_MACROS = ")
+    assert stmaryrd == prepared["stmaryrd"]
+    assert json.loads(assignment.removesuffix(";")) == prepared["macros"]
+    assert len(inspect_apkg(output)) == 3
+    previous = output.read_bytes()
+    assets.write_text("damaged renderer data")
+    failed = subprocess.run(command, input=rendered, text=True, capture_output=True)
+    assert failed.returncode != 0
+    assert output.read_bytes() == previous
